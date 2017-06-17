@@ -361,9 +361,9 @@ int main() {
 			for (int i = 0; i < 32; i++) {
 				for (int j = 0; j < 64; j++) {
 					if(gfx[gfxchar] == 1) {
-						sf2d_draw_rectangle(j*6.25f, i*7.5f, 6.25f, 7.5f, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+						sf2d_draw_rectangle(j*6, i*7, 6, 7, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
 					} else {
-						sf2d_draw_rectangle(j*6.25f, i*7.5f, 6.25f, 7.5f, RGBA8(0x00, 0x00, 0x00, 0xFF));
+						sf2d_draw_rectangle(j*6, i*7, 6, 7, RGBA8(0x00, 0x00, 0x00, 0xFF));
 					}
 					gfxchar++;
 				}
