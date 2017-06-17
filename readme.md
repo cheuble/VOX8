@@ -15,5 +15,5 @@ Usage
 
 TODO
 ====
-Fix weird stuff that happens in some ROMs (probably maths-related errors)
-Add a ROM selection menu.
+- Fix weird stuff that happens in some ROMs (probably maths-related errors)
+- Add a ROM selection menu.
