@@ -224,7 +224,7 @@ void Chip8EmulationLoop() {
 			switch (opcode & 0x00FF) {
 				case 0x009E: // Ex9E - SKP
 					if (key[V[(opcode & 0x0F00) >> 8]] != 0)
-                        pc += 2;
+						pc += 2;
 					pc += 2;
 					break;
 				case 0x00A1: // ExA1 - SKNP
@@ -245,15 +245,13 @@ void Chip8EmulationLoop() {
 				{
 					bool key_down = false;
 					
-                    for(int i = 0; i < 16; ++i)
-                    {
-                        if(key[i] != 0)
-                        {
-                            V[(opcode & 0x0F00) >> 8] = i;
-                            key_down = true;
-                        }
-                    }
-                    if(!key_down)
+					for(int i = 0; i < 16; ++i) {
+						if(key[i] != 0) {
+							V[(opcode & 0x0F00) >> 8] = i;
+							key_down = true;
+						}
+					}
+					if(!key_down)
 						return;
 					pc += 2;
 					break;
@@ -269,11 +267,11 @@ void Chip8EmulationLoop() {
 					break;
 				case 0x001E: // Fx1E - ADD
 					if(I + V[(opcode & 0x0F00) >> 8] > 0xFFF)
-                        V[0xF] = 1;
-                    else
-                        V[0xF] = 0;
+						V[0xF] = 1;
+					else
+						V[0xF] = 0;
 					
-                    I += V[(opcode & 0x0F00) >> 8];
+					I += V[(opcode & 0x0F00) >> 8];
 					pc += 2;
 					break;
 				case 0x0029: // Fx29 - LD
@@ -282,8 +280,8 @@ void Chip8EmulationLoop() {
 					break;
 				case 0x0033: // Fx33 - LD
 					memory[I]     = V[(opcode & 0x0F00) >> 8] / 100;
-                    memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
-                    memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
+					memory[I + 1] = (V[(opcode & 0x0F00) >> 8] / 10) % 10;
+					memory[I + 2] = (V[(opcode & 0x0F00) >> 8] % 100) % 10;
 					pc += 2;
 					break;
 				case 0x0055: // Fx55 - LD
