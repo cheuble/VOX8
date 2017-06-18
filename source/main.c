@@ -88,42 +88,44 @@ void Chip8EmulationLoop() {
 					pc+=2;
 					break;
 				case 0x00EE: // 00EE - RET
-					sp--;
-                    pc = stack[sp];
+					--sp;
+					pc = stack[sp];
 					pc += 2;
 					break;
 				default: break;
-					// printf("Unknown/unhandled opcode.\n");
 			} break;
 		case 0x1000: // 1nnn - JP
-			pc = (opcode & 0xFFF);
+			pc = opcode & 0x0FFF;
 			break;
 		case 0x2000: // 2nnn - CALL
 			stack[sp] = pc;
-			sp++;
-			pc = (opcode & 0x0FFF);
+			++sp;
+			pc = opcode & 0x0FFF;
 			break;
 		case 0x3000: // 3xkk - SE
 			if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00FF))
+				pc += 4;
+			else
 				pc += 2;
-			pc += 2;
 			break;
 		case 0x4000: // 4xkk - SNE
 			if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00FF))
+				pc += 4;
+			else
 				pc += 2;
-			pc += 2;
 			break;
 		case 0x5000: // 5xy0 - SE
-			if (V[(opcode & 0x0F00) >> 8] == (opcode & 0x00F0) >> 4)
+			if (V[(opcode & 0x0F00) >> 8] == V[(opcode & 0x00F0) >> 4])
+				pc += 4;
+			else
 				pc += 2;
-			pc += 2;
 			break;
 		case 0x6000: // 6xkk - LD
-			V[(opcode & 0x0F00) >> 8] = (opcode & 0x00FF);
+			V[(opcode & 0x0F00) >> 8] = opcode & 0x00FF;
 			pc += 2;
 			break;
 		case 0x7000: // 7xkk - ADD
-			V[(opcode & 0x0F00) >> 8] += (opcode & 0x00FF);
+			V[(opcode & 0x0F00) >> 8] += opcode & 0x00FF;
 			pc += 2;
 			break;
 		case 0x8000:
@@ -163,7 +165,7 @@ void Chip8EmulationLoop() {
 					break;
 				case 0x0006: // 8xy6 - SHR
 					V[0xF] = V[(opcode & 0x0F00) >> 8] & 0x1;
-                    V[(opcode & 0x0F00) >> 8] >>= 1;
+					V[(opcode & 0x0F00) >> 8] >>= 1;
 					pc += 2;
 					break;
 				case 0x0007: // 8xy7 - SUBN
@@ -176,19 +178,19 @@ void Chip8EmulationLoop() {
 					break;
 				case 0x000E: // 8xyE - SHL
 					V[0xF] = V[(opcode & 0x0F00) >> 8] >> 7;
-                    V[(opcode & 0x0F00) >> 8] <<= 1;
+					V[(opcode & 0x0F00) >> 8] <<= 1;
 					pc += 2;
 					break;
 				default: break;
-					// printf("Unknown/unhandled opcode.\n");
 			} break;
 		case 0x9000: // 9xy0 - SNE
-			if (V[(opcode & 0x0F00) >> 8] != (opcode & 0x00F0) >> 4)
+			if (V[(opcode & 0x0F00) >> 8] != V[(opcode & 0x00F0) >> 4])
+				pc += 4;
+			else
 				pc += 2;
-			pc += 2;
 			break;
 		case 0xA000: // Annn - LD
-			I = (opcode & 0xFFF);
+			I = opcode & 0x0FFF;
 			pc += 2;
 			break;
 		case 0xB000: // Bnnn - JP
@@ -224,16 +226,17 @@ void Chip8EmulationLoop() {
 			switch (opcode & 0x00FF) {
 				case 0x009E: // Ex9E - SKP
 					if (key[V[(opcode & 0x0F00) >> 8]] != 0)
+						pc +=  4;
+					else
 						pc += 2;
-					pc += 2;
 					break;
 				case 0x00A1: // ExA1 - SKNP
 					if (key[V[(opcode & 0x0F00) >> 8]] == 0)
+						pc +=  4;
+					else
 						pc += 2;
-					pc += 2;
 					break;
 				default: break;
-					// printf("Unknown/unhandled opcode.\n");
 			} break;
 		case 0xF000:
 			switch (opcode & 0x00FF) {
@@ -270,7 +273,6 @@ void Chip8EmulationLoop() {
 						V[0xF] = 1;
 					else
 						V[0xF] = 0;
-					
 					I += V[(opcode & 0x0F00) >> 8];
 					pc += 2;
 					break;
@@ -305,7 +307,7 @@ void Chip8EmulationLoop() {
 	
 	// Update delay timer
 	if (dt > 0)
-		dt--;
+		--dt;
 }
 
 int main() {
