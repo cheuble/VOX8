@@ -6,9 +6,14 @@
 #include <inttypes.h>
 #include <ctype.h>
 #include <unistd.h>
+#ifdef _VITA
+#include <psp2/ctrl.h>
+#include <psp2/kernel/processmgr.h>
+#include <vita2d.h>
+#elif defined _3DS
 #include <3ds.h>
 #include <sf2d.h>
-
+#endif
 uint8_t memory[4096]; // Chip8 Memory (4KB)
 uint16_t pc = 0x200; // Program Counter value
 unsigned char gfx[64 * 32]; // Gfx buffer
@@ -306,18 +311,56 @@ void Chip8EmulationLoop() {
 }
 
 int main() {
+#ifdef _VITA
+	SceCtrlData pad, old_pad;
+	unsigned int keys_down;
+	unsigned int keys_up;
+	vita2d_pgf *pgf;
+
+	vita2d_init();
+	vita2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
+	pgf = vita2d_load_default_pgf();
+
+	memset(&pad, 0, sizeof(pad));
+	old_pad.buttons = 0;
+	LoadChip8Rom("ux0:data/VOX8/ROM");
+	for (;;) {
+#elif defined _3DS
 	sf2d_init();
 	sf2d_set_clear_color(RGBA8(0x00, 0x00, 0x00, 0xFF));
-	
 	LoadChip8Rom("ROM");
-
 	while (aptMainLoop()) {
-		hidScanInput();
+#endif
 		int gfxchar = 0;
-
+#ifdef _VITA
+		sceCtrlPeekBufferPositive(0, &pad, 1);
+		keys_down = pad.buttons & ~old_pad.buttons;
+		keys_up = ~pad.buttons & old_pad.buttons;
+		if (keys_down & SCE_CTRL_START)
+			break;
+		if (keys_down & SCE_CTRL_SQUARE) key[0] = 1;
+		else if (keys_up & SCE_CTRL_SQUARE) key[0] = 0;
+		if (keys_down & SCE_CTRL_CROSS) key[1] = 1;
+		else if (keys_up & SCE_CTRL_CROSS) key[1] = 0;
+		if (keys_down & SCE_CTRL_CIRCLE) key[2] = 1;
+		else if (keys_up & SCE_CTRL_CIRCLE) key[2] = 0;
+		if (keys_down & SCE_CTRL_TRIANGLE) key[3] = 1;
+		else if (keys_up & SCE_CTRL_TRIANGLE) key[3] = 0;
+		if (keys_down & SCE_CTRL_LEFT) key[4] = 1;
+		else if (keys_up & SCE_CTRL_LEFT) key[4] = 0;
+		if (keys_down & SCE_CTRL_DOWN) key[5] = 1;
+		else if (keys_up & SCE_CTRL_DOWN) key[5] = 0;
+		if (keys_down & SCE_CTRL_RIGHT) key[6] = 1;
+		else if (keys_up & SCE_CTRL_RIGHT) key[6] = 0;
+		if (keys_down & SCE_CTRL_UP) key[7] = 1;
+		else if (keys_up & SCE_CTRL_UP) key[7] = 0;
+		if (keys_down & SCE_CTRL_L1) key[8] = 1;
+		else if (keys_up & SCE_CTRL_L1) key[8] = 0;
+		if (keys_down & SCE_CTRL_R1) key[9] = 1;
+		else if (keys_up & SCE_CTRL_R1) key[9] = 0;
+#elif defined _3DS
 		if (hidKeysDown() & KEY_START)
 			break;
-		
 		if (hidKeysDown() & KEY_CPAD_LEFT) key[0] = 1;
 		else if (hidKeysUp() & KEY_CPAD_LEFT) key[0] = 0;
 		if (hidKeysDown() & KEY_CPAD_DOWN) key[1] = 1;
@@ -350,29 +393,48 @@ int main() {
 		else if (hidKeysUp() & KEY_ZL) key[0xE] = 0;
 		if (hidKeysDown() & KEY_ZR) key[0xF] = 1;
 		else if (hidKeysUp() & KEY_ZR) key[0xF] = 0;
-		
+#endif
 		Chip8EmulationLoop();
-		
+
 		if (drawFlag) {
 			drawFlag = false;
-
+#ifdef _VITA
+			vita2d_start_drawing();
+#elif defined _3DS
 			sf2d_start_frame(GFX_TOP, GFX_LEFT);
-
+#endif
 			for (int i = 0; i < 32; i++) {
 				for (int j = 0; j < 64; j++) {
+					unsigned int colour;
 					if(gfx[gfxchar] == 1) {
-						sf2d_draw_rectangle(j*6, i*7, 6, 7, RGBA8(0xFF, 0xFF, 0xFF, 0xFF));
+						colour = RGBA8(255, 255, 255, 255);
 					} else {
-						sf2d_draw_rectangle(j*6, i*7, 6, 7, RGBA8(0x00, 0x00, 0x00, 0xFF));
+						colour = RGBA8(0, 0, 0, 255);
 					}
+#ifdef _VITA
+					vita2d_draw_rectangle(j*15, i*17, 15, 17, colour);
+#elif defined _3DS
+					sf2d_draw_rectangle(j*6, i*7, 6, 7, colour);
+#endif
 					gfxchar++;
 				}
 			}
-
+#ifdef _VITA
+			vita2d_end_drawing();
+			vita2d_swap_buffers();
+		}
+		
+		old_pad = pad;
+	}
+	vita2d_fini();
+	vita2d_free_pgf(pgf);
+	sceKernelExitProcess(0);
+#elif defined _3DS
 			sf2d_end_frame();
 			sf2d_swapbuffers();
 		}
 	}
 	sf2d_fini();
+#endif
 	return 0;
 }
