@@ -7,10 +7,10 @@ At the moment, only PS Vita and 3DS builds are available, but I will put togethe
 Building
 ========
 `PS Vita` ~ Ensure you have GCC/DevkitPro/Msys/Whatever installed, as well as VitaSDK (https://vitasdk.org). Also make sure you have installed libvita2d as well (https://github.com/xerpi/libvita2d).
-In CMD/Terminal, 'cd' to the folder with Makefile inside it and type `make`. This should output a VPK which you can then install via VitaShell.
+In CMD/Terminal, type `make vita`. This should output a VPK which you can then install via VitaShell.
 
 `3DS` ~ Ensure you have DevkitPro installed, and update your ctrulib and libcitro3d installations. (https://github.com/smealum/ctrulib and https://github.com/fincs/citro3d respectively) Also install xerpi's libsf2d (https://github.com/xerpi/sf2dlib).
-In CMD/Terminal, 'cd' to the folder with Makefile inside it and type `make`. This should output a 3dsx file and an smdh file which you can place at _sdmc:/3ds/VOX8/_.
+In CMD/Terminal, type `make 3ds`. This should output a 3dsx file and an smdh file which you can place at _sdmc:/3ds/VOX8/_.
 
 Usage
 =====
